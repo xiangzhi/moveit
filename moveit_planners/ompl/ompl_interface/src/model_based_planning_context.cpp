@@ -58,7 +58,12 @@
 #include "ompl/base/objectives/MaximizeMinClearanceObjective.h"
 
 //our own objective
-#include <moveit/ompl_interface/human_aware_objective.h>
+#include "moveit/ompl_interface/ompl_human/human_aware_objective.h"
+#include "moveit/ompl_interface/ompl_human/human.h"
+
+#include <ros/ros.h>
+
+namespace oh = ompl_human;
 
 ompl_interface::ModelBasedPlanningContext::ModelBasedPlanningContext(const std::string &name,
                                                                      const ModelBasedPlanningContextSpecification &spec)
@@ -273,7 +278,14 @@ void ompl_interface::ModelBasedPlanningContext::useConfig()
     objective.reset(new ompl::base::MaximizeMinClearanceObjective(ompl_simple_setup_->getSpaceInformation()));
   }
   else if (optimizer == "HumanAwareObjective"){
-    objective.reset(new ompl_interface::HumanAwareObjective(ompl_simple_setup_->getSpaceInformation()));
+    //get a list of human, create a dummy list for now
+    //create a human object
+    std::shared_ptr<std::vector<oh::Human>> human_list_ptr(new std::vector<oh::Human>());
+    auto human1 = oh::Human(oh::Point(1,0.2,0), oh::Point(-1,1.4,0.1));
+    human_list_ptr->push_back(human1);
+    // //add to it
+     objective.reset(new ompl_human::HumanAwareObjective(ompl_simple_setup_->getSpaceInformation(),human_list_ptr));
+    //objective.reset(new ompl::base::StateCostIntegralObjective(ompl_simple_setup_->getSpaceInformation()));
   }
   else {
     objective.reset(new ompl::base::PathLengthOptimizationObjective(ompl_simple_setup_->getSpaceInformation()));
@@ -369,6 +381,7 @@ ompl::base::GoalPtr ompl_interface::ModelBasedPlanningContext::constructGoal()
   // ******************* set up the goal representation, based on goal constraints
 
   std::vector<ob::GoalPtr> goals;
+  ROS_INFO("goal constraints sizet:%d",(int)goal_constraints_.size());
   for (std::size_t i = 0; i < goal_constraints_.size(); ++i)
   {
     constraint_samplers::ConstraintSamplerPtr cs;
@@ -377,6 +390,7 @@ ompl::base::GoalPtr ompl_interface::ModelBasedPlanningContext::constructGoal()
                                                             goal_constraints_[i]->getAllConstraints());
     if (cs)
     {
+      ROS_INFO("created sampler");
       ob::GoalPtr g = ob::GoalPtr(new ConstrainedGoalSampler(this, goal_constraints_[i], cs));
       goals.push_back(g);
     }

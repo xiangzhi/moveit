@@ -48,6 +48,7 @@
 #include <ompl/base/StateStorage.h>
 
 #include <boost/thread/mutex.hpp>
+#include <memory>
 
 namespace ompl_interface
 {

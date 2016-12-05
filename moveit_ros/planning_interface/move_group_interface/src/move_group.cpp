@@ -56,7 +56,7 @@
 #include <moveit_msgs/ExecuteKnownTrajectory.h>
 #include <moveit_msgs/QueryPlannerInterfaces.h>
 #include <moveit_msgs/GetCartesianPath.h>
-#include <moveit_msgs/GraspPlanning.h>
+//#include <moveit_msgs/GraspPlanning.h>
 
 #include <actionlib/client/simple_action_client.h>
 #include <eigen_conversions/eigen_msg.h>
@@ -165,7 +165,7 @@ public:
         node_handle_.serviceClient<moveit_msgs::QueryPlannerInterfaces>(move_group::QUERY_PLANNERS_SERVICE_NAME);
     cartesian_path_service_ =
         node_handle_.serviceClient<moveit_msgs::GetCartesianPath>(move_group::CARTESIAN_PATH_SERVICE_NAME);
-    plan_grasps_service_ = node_handle_.serviceClient<moveit_msgs::GraspPlanning>(GRASP_PLANNING_SERVICE_NAME);
+    // plan_grasps_service_ = node_handle_.serviceClient<moveit_msgs::GraspPlanning>(GRASP_PLANNING_SERVICE_NAME);
 
     ROS_INFO_STREAM_NAMED("move_group_interface", "Ready to take MoveGroup commands for group " << opt.group_name_
                                                                                                 << ".");
@@ -690,22 +690,22 @@ public:
       return MoveItErrorCode(moveit_msgs::MoveItErrorCodes::FAILURE);
     }
 
-    moveit_msgs::GraspPlanning::Request request;
-    moveit_msgs::GraspPlanning::Response response;
+    // moveit_msgs::GraspPlanning::Request request;
+    // moveit_msgs::GraspPlanning::Response response;
 
-    request.group_name = opt_.group_name_;
-    request.target = object;
-    request.support_surfaces.push_back(support_surface_);
+    // request.group_name = opt_.group_name_;
+    // request.target = object;
+    // request.support_surfaces.push_back(support_surface_);
 
-    ROS_DEBUG_NAMED("move_group_interface", "Calling grasp planner...");
-    if (!plan_grasps_service_.call(request, response) ||
-        response.error_code.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
-    {
-      ROS_ERROR_NAMED("move_group_interface", "Grasp planning failed. Unable to pick.");
-      return MoveItErrorCode(moveit_msgs::MoveItErrorCodes::FAILURE);
-    }
+    // ROS_DEBUG_NAMED("move_group_interface", "Calling grasp planner...");
+    // if (!plan_grasps_service_.call(request, response) ||
+    //     response.error_code.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
+    // {
+    //   ROS_ERROR_NAMED("move_group_interface", "Grasp planning failed. Unable to pick.");
+    //   return MoveItErrorCode(moveit_msgs::MoveItErrorCodes::FAILURE);
+    // }
 
-    return pick(object.id, response.grasps);
+    // return pick(object.id, response.grasps);
   }
 
   MoveItErrorCode plan(Plan &plan)

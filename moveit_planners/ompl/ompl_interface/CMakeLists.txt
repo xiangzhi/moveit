@@ -19,8 +19,14 @@ add_library(${MOVEIT_LIB_NAME}
   src/detail/constrained_valid_state_sampler.cpp
   src/detail/constrained_goal_sampler.cpp
   src/detail/ompl_console.cpp
+)
 
-  src/human_aware_objective.cpp
+set(OMPL_HUMAN_LIB_NAME ompl_human_lib)
+add_library(${OMPL_HUMAN_LIB_NAME}
+  src/ompl_human/human_aware_objective.cpp
+  src/ompl_human/path_simplifier_with_cost.cpp
+  src/ompl_human/utils.cpp
+  src/ompl_human/human.cpp  
 )
 
 find_package(OpenMP)
@@ -30,15 +36,15 @@ set_target_properties(${MOVEIT_LIB_NAME} PROPERTIES COMPILE_FLAGS "${CMAKE_CXX_F
 set_target_properties(${MOVEIT_LIB_NAME} PROPERTIES LINK_FLAGS "${OpenMP_CXX_FLAGS}")
 
 add_executable(moveit_ompl_planner src/ompl_planner.cpp)
-target_link_libraries(moveit_ompl_planner ${MOVEIT_LIB_NAME})
+target_link_libraries(moveit_ompl_planner ${MOVEIT_LIB_NAME} ${OMPL_HUMAN_LIB_NAME})
 set_target_properties(moveit_ompl_planner PROPERTIES LINK_FLAGS "${OpenMP_CXX_FLAGS}")
 
 add_executable(moveit_demo_construct_constraints_database src/demo_construct_state_database.cpp)
-target_link_libraries(moveit_demo_construct_constraints_database ${MOVEIT_LIB_NAME})
+target_link_libraries(moveit_demo_construct_constraints_database ${MOVEIT_LIB_NAME} ${OMPL_HUMAN_LIB_NAME})
 set_target_properties(moveit_demo_construct_constraints_database PROPERTIES LINK_FLAGS "${OpenMP_CXX_FLAGS}")
 
 add_library(moveit_ompl_planner_plugin src/ompl_planner_manager.cpp)
-target_link_libraries(moveit_ompl_planner_plugin ${MOVEIT_LIB_NAME} ${catkin_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(moveit_ompl_planner_plugin ${MOVEIT_LIB_NAME} ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${OMPL_HUMAN_LIB_NAME})
 
 install(TARGETS ${MOVEIT_LIB_NAME} moveit_ompl_planner moveit_ompl_planner_plugin
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}

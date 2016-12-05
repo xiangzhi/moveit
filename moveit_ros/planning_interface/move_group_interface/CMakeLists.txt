@@ -1,5 +1,7 @@
 set(MOVEIT_LIB_NAME moveit_move_group_interface)
 
+set(CMAKE_CXX_FLAGS "-std=c++0x ${CMAKE_CXX_FLAGS}")
+
 add_library(${MOVEIT_LIB_NAME} src/move_group.cpp)
 target_link_libraries(${MOVEIT_LIB_NAME} moveit_common_planning_interface_objects moveit_planning_scene_interface ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 add_dependencies(${MOVEIT_LIB_NAME} ${catkin_EXPORTED_TARGETS})
