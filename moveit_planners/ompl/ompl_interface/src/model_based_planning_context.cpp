@@ -58,6 +58,9 @@
 #include "ompl/base/objectives/StateCostIntegralObjective.h"
 #include "ompl/base/objectives/MaximizeMinClearanceObjective.h"
 
+//our own objective
+#include <moveit/ompl_interface/human_aware_objective.h>
+
 ompl_interface::ModelBasedPlanningContext::ModelBasedPlanningContext(const std::string &name, const ModelBasedPlanningContextSpecification &spec) :
   planning_interface::PlanningContext(name, spec.state_space_->getJointModelGroup()->getName()),
   spec_(spec),
@@ -75,7 +78,7 @@ ompl_interface::ModelBasedPlanningContext::ModelBasedPlanningContext(const std::
   max_solution_segment_length_(0.0),
   minimum_waypoint_count_(0),
   use_state_validity_cache_(true),
-  simplify_solutions_(true)
+  simplify_solutions_(false)
 {
   ompl_simple_setup_->getStateSpace()->computeSignature(space_signature_);
   ompl_simple_setup_->getStateSpace()->setStateSamplerAllocator(boost::bind(&ModelBasedPlanningContext::allocPathConstrainedSampler, this, _1));
@@ -233,6 +236,7 @@ void ompl_interface::ModelBasedPlanningContext::useConfig()
     logInform("No optimization objective specified, defaulting to %s", optimizer.c_str());
   } else {
     optimizer = it->second;
+    logInform("Optimization objective specified, using %s", optimizer.c_str());
     cfg.erase(it);
   }
 
@@ -250,6 +254,9 @@ void ompl_interface::ModelBasedPlanningContext::useConfig()
   }
   else if (optimizer == "MaximizeMinClearanceObjective"){
     objective.reset(new ompl::base::MaximizeMinClearanceObjective(ompl_simple_setup_->getSpaceInformation()));
+  }
+  else if (optimizer == "HumanAwareObjective"){
+    objective.reset(new ompl_interface::HumanAwareObjective(ompl_simple_setup_->getSpaceInformation()));
   }
   else {
     objective.reset(new ompl::base::PathLengthOptimizationObjective(ompl_simple_setup_->getSpaceInformation()));
@@ -298,6 +305,7 @@ void ompl_interface::ModelBasedPlanningContext::setPlanningVolume(const moveit_m
 
 void ompl_interface::ModelBasedPlanningContext::simplifySolution(double timeout)
 {
+  logInform("simplify solution");
   ompl_simple_setup_->simplifySolution(timeout);
   last_simplify_time_ = ompl_simple_setup_->getLastSimplificationTime();
 }
@@ -487,6 +495,9 @@ bool ompl_interface::ModelBasedPlanningContext::solve(planning_interface::Motion
     {
       simplifySolution(request_.allowed_planning_time - ptime);
       ptime += getLastSimplifyTime();
+    }
+    else{
+      logInform("Not simplifying solution");
     }
     interpolateSolution();
 

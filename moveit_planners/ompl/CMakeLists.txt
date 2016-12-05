@@ -47,3 +47,5 @@ add_subdirectory(ompl_interface)
 
 install(FILES ompl_interface_plugin_description.xml
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+
+set(CMAKE_CXX_FLAGS "-std=c++0x ${CMAKE_CXX_FLAGS}")

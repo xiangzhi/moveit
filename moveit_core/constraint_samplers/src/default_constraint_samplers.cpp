@@ -165,7 +165,9 @@ bool constraint_samplers::JointConstraintSampler::sample(robot_state::RobotState
     values_[bounds_[i].index_] = random_number_generator_.uniformReal(bounds_[i].min_bound_, bounds_[i].max_bound_);
 
   state.setJointGroupPositions(jmg_, values_);
-
+  //FIXES FROM GITHUB
+  state.update();
+  //END OF FIXES
   // we are always successful
   return true;
 }
