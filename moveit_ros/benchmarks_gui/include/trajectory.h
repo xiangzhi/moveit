@@ -39,14 +39,16 @@
 
 #ifndef Q_MOC_RUN
 #include <frame_marker.h>
+#include <moveit/macros/class_forward.h>
 #endif
 
 namespace benchmark_tool
 {
+MOVEIT_CLASS_FORWARD(Trajectory);
 
 /* Implements functionality to create and manage straight and arc trajectories with interactive markers
  */
-class Trajectory: public QObject
+class Trajectory : public QObject
 {
   Q_OBJECT
 
@@ -72,11 +74,12 @@ public:
   GripperMarkerPtr start_marker, end_marker;
   std::vector<GripperMarkerPtr> waypoint_markers;
 
-  Eigen::Affine3d control_marker_start_pose; // The control marker pose corresponding to the start marker
-  Eigen::Affine3d control_marker_end_pose;   // The control marker pose corresponding to the end marker
+  Eigen::Affine3d control_marker_start_pose;  // The control marker pose corresponding to the start marker
+  Eigen::Affine3d control_marker_end_pose;    // The control marker pose corresponding to the end marker
 
-  Trajectory(const robot_state::RobotState& robot_state, Ogre::SceneNode *parent_node, rviz::DisplayContext *context, const std::string &name,
-             const std::string &frame_id, const robot_interaction::RobotInteraction::EndEffector &eef, const geometry_msgs::Pose &pose, double scale,
+  Trajectory(const robot_state::RobotState &robot_state, Ogre::SceneNode *parent_node, rviz::DisplayContext *context,
+             const std::string &name, const std::string &frame_id,
+             const robot_interaction::RobotInteraction::EndEffector &eef, const geometry_msgs::Pose &pose, double scale,
              const GripperMarker::GripperMarkerState &state, unsigned int nwaypoints, bool is_selected = true,
              bool visible_x = true, bool visible_y = true, bool visible_z = true);
 
@@ -123,13 +126,16 @@ public:
     }
   }
 
-  ~Trajectory() {}
+  ~Trajectory()
+  {
+  }
 
 protected:
-  void createControlMarker(const robot_state::RobotState& robot_state, Ogre::SceneNode *parent_node, rviz::DisplayContext *context, const std::string &name,
-                         const std::string &frame_id, const robot_interaction::RobotInteraction::EndEffector &eef, const geometry_msgs::Pose &pose, double scale,
-                         const GripperMarker::GripperMarkerState &state, bool is_selected = true,
-                         bool visible_x = true, bool visible_y = true, bool visible_z = true);
+  void createControlMarker(const robot_state::RobotState &robot_state, Ogre::SceneNode *parent_node,
+                           rviz::DisplayContext *context, const std::string &name, const std::string &frame_id,
+                           const robot_interaction::RobotInteraction::EndEffector &eef, const geometry_msgs::Pose &pose,
+                           double scale, const GripperMarker::GripperMarkerState &state, bool is_selected = true,
+                           bool visible_x = true, bool visible_y = true, bool visible_z = true);
 
   void createHandMarker();
   void createStartMarker();
@@ -153,12 +159,13 @@ private:
 
   unsigned int nwaypoints_;
 
-  typedef enum {CONTROL_MARKER_FLOATING, CONTROL_MARKER_FIXED} ControlMarkerModeType;
+  typedef enum
+  {
+    CONTROL_MARKER_FLOATING,
+    CONTROL_MARKER_FIXED
+  } ControlMarkerModeType;
   ControlMarkerModeType control_marker_mode_;
 };
-
-typedef boost::shared_ptr<Trajectory> TrajectoryPtr;
-
 }
 
 #endif

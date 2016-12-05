@@ -36,6 +36,8 @@
 
 #include <ros/ros.h>
 
+#include <moveit/macros/class_forward.h>
+
 #include <moveit_ros_control_interface/ControllerHandle.h>
 
 #include <moveit/controller_manager/controller_manager.h>
@@ -70,6 +72,8 @@ bool checkTimeout(ros::Time &t, double timeout, bool force = false)
   return false;
 }
 
+MOVEIT_CLASS_FORWARD(MoveItControllerManager);
+
 /**
  * \brief moveit_controller_manager::MoveItControllerManager sub class that interfaces one ros_control
  * controller_manager
@@ -83,7 +87,7 @@ class MoveItControllerManager : public moveit_controller_manager::MoveItControll
   typedef std::map<std::string, controller_manager_msgs::ControllerState> ControllersMap;
   ControllersMap managed_controllers_;
   ControllersMap active_controllers_;
-  typedef std::map<std::string, boost::shared_ptr<ControllerHandleAllocator> > AllocatorsMap;
+  typedef std::map<std::string, ControllerHandleAllocatorPtr> AllocatorsMap;
   AllocatorsMap allocators_;
 
   typedef std::map<std::string, moveit_controller_manager::MoveItControllerHandlePtr> HandleMap;
@@ -97,7 +101,10 @@ class MoveItControllerManager : public moveit_controller_manager::MoveItControll
    * @param s state of controller
    * @return true if controller is active
    */
-  static bool isActive(const controller_manager_msgs::ControllerState &s) { return s.state == std::string("running"); }
+  static bool isActive(const controller_manager_msgs::ControllerState &s)
+  {
+    return s.state == std::string("running");
+  }
 
   /**
    * \brief  Call list_controllers and populate managed_controllers_ and active_controllers_. Allocates handles if
@@ -161,7 +168,10 @@ class MoveItControllerManager : public moveit_controller_manager::MoveItControll
    * @param name name to be resolved to an absolute name
    * @return resolved name
    */
-  std::string getAbsName(const std::string &name) { return ros::names::append(ns_, name); }
+  std::string getAbsName(const std::string &name)
+  {
+    return ros::names::append(ns_, name);
+  }
 
 public:
   /**
@@ -332,7 +342,6 @@ public:
     }
     return true;
   }
-  typedef boost::shared_ptr<MoveItControllerManager> Ptr;
 };
 /**
  *  \brief MoveItMultiControllerManager discovers all running ros_control node and delegates member function to the
@@ -340,7 +349,7 @@ public:
  */
 class MoveItMultiControllerManager : public moveit_controller_manager::MoveItControllerManager
 {
-  typedef std::map<std::string, moveit_ros_control_interface::MoveItControllerManager::Ptr> ControllerManagersMap;
+  typedef std::map<std::string, moveit_ros_control_interface::MoveItControllerManagerPtr> ControllerManagersMap;
   ControllerManagersMap controller_managers_;
   ros::Time controller_managers_stamp_;
   boost::mutex controller_managers_mutex_;

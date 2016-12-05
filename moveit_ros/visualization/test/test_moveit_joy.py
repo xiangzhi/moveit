@@ -17,8 +17,8 @@
 #    disclaimer in the documentation and/or other materials provided
 #    with the distribution.
 #  * Neither the name of Tokyo Opensource Robotics Kyokai Association
-#    nor the names of its contributors may be used to endorse or promote 
-#    products derived from this software without specific prior written 
+#    nor the names of its contributors may be used to endorse or promote
+#    products derived from this software without specific prior written
 #    permission.
 #
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -37,38 +37,25 @@
 
 import unittest
 
-from geometry_msgs.msg import Pose
 from moveit_ros_visualization.moveitjoy_module import MoveitJoy
 import rospy
-
-import math
-from tf.transformations import quaternion_from_euler
+import rostest
+import os
 
 _PKGNAME = 'moveit_ros_visualization'
 _NODENAME = 'test_moveit_joy'
 
 class TestMoveitJoy(unittest.TestCase):
+    def __init__(self, *args, **kwargs):
+        super(TestMoveitJoy, self).__init__(*args, **kwargs)
 
-    @classmethod
-    def setUpClass(self):
-        rospy.init_node(_NODENAME)
-        self.moveit_joy = MoveitJoy()
-
-    @classmethod
-    def tearDownClass(self):
-        True  # TODO impl something meaningful
-
-    def test_updatePlanningGroup_exception(self):
-        '''Test MoveitJoy.updatePlanningGroup'''
-        exception_raised = False
-        try:
-            # Passng 0 to MoveitJoy.updatePlanningGroup should raise an exception.
-            self.moveit_joy.updatePlanningGroup(0)
-        except rospy.ROSInitException:
-            exception_raised = True
-        self.assertTrue(exception_raised)
-
+    def test_constructor(self):
+        # As there is no robot model loaded, the constructor will raise an exception
+        # However, at least we tested, that MoveitJoy constructor can be called...
+        self.assertRaises(RuntimeError, MoveitJoy)
 
 if __name__ == '__main__':
-    import rostest
-    rostest.rosrun(_PKGNAME, _NODENAME, TestMoveitJoy) 
+    rospy.init_node(_NODENAME)
+    rostest.rosrun(_PKGNAME, _NODENAME, TestMoveitJoy)
+    # Don't get trapped by https://github.com/ros/ros_comm/issues/870
+    os._exit(0)  # exit without cleanup

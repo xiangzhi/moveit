@@ -33,7 +33,6 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rosconsole
   object_recognition_msgs
-  rostest
 )
 find_package(Eigen REQUIRED)
 
@@ -88,4 +87,7 @@ install(FILES
 
 install(DIRECTORY icons DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 
-add_rostest(test/moveit_joy.test)
+if (CATKIN_ENABLE_TESTING)
+  find_package(rostest)
+  add_rostest(test/moveit_joy.test)
+endif()

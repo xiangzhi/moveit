@@ -37,21 +37,23 @@
 #ifndef MOVEIT_PLANNING_SCENE_MONITOR_TRAJECTORY_MONITOR_
 #define MOVEIT_PLANNING_SCENE_MONITOR_TRAJECTORY_MONITOR_
 
+#include <moveit/macros/class_forward.h>
 #include <moveit/planning_scene_monitor/current_state_monitor.h>
 #include <moveit/robot_trajectory/robot_trajectory.h>
 #include <boost/thread.hpp>
 
 namespace planning_scene_monitor
 {
+typedef boost::function<void(const robot_state::RobotStateConstPtr &state, const ros::Time &stamp)>
+    TrajectoryStateAddedCallback;
 
-typedef boost::function<void(const robot_state::RobotStateConstPtr &state, const ros::Time &stamp)> TrajectoryStateAddedCallback;
+MOVEIT_CLASS_FORWARD(TrajectoryMonitor);
 
 /** @class TrajectoryMonitor
     @brief Monitors the joint_states topic and tf to record the trajectory of the robot. */
 class TrajectoryMonitor
 {
 public:
-
   /** @brief Constructor.
    */
   TrajectoryMonitor(const CurrentStateMonitorConstPtr &state_monitor, double sampling_frequency = 5.0);
@@ -73,8 +75,9 @@ public:
 
   void setSamplingFrequency(double sampling_frequency);
 
-  /// Return the current maintained trajectory. This function is not thread safe (hence NOT const), because the trajectory could be modified.
-  const robot_trajectory::RobotTrajectory& getTrajectory()
+  /// Return the current maintained trajectory. This function is not thread safe (hence NOT const), because the
+  /// trajectory could be modified.
+  const robot_trajectory::RobotTrajectory &getTrajectory()
   {
     return trajectory_;
   }
@@ -90,7 +93,6 @@ public:
   }
 
 private:
-
   void recordStates();
 
   CurrentStateMonitorConstPtr current_state_monitor_;
@@ -103,9 +105,6 @@ private:
   boost::scoped_ptr<boost::thread> record_states_thread_;
   TrajectoryStateAddedCallback state_add_callback_;
 };
-
-typedef boost::shared_ptr<TrajectoryMonitor> TrajectoryMonitorPtr;
-typedef boost::shared_ptr<const TrajectoryMonitor> TrajectoryMonitorConstPtr;
 }
 
 #endif
