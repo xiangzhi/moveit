@@ -60,6 +60,7 @@
 //our own objective
 #include "moveit/ompl_interface/ompl_human/human_aware_objective.h"
 #include "moveit/ompl_interface/ompl_human/human.h"
+#include "moveit/ompl_interface/ompl_human/path_simplifier_with_cost.h"
 
 #include <ros/ros.h>
 
@@ -83,7 +84,7 @@ ompl_interface::ModelBasedPlanningContext::ModelBasedPlanningContext(const std::
   , max_solution_segment_length_(0.0)
   , minimum_waypoint_count_(0)
   , use_state_validity_cache_(true)
-  , simplify_solutions_(false)
+  , simplify_solutions_(true)
 {
   ompl_simple_setup_->getStateSpace()->computeSignature(space_signature_);
   ompl_simple_setup_->getStateSpace()->setStateSamplerAllocator(
@@ -278,6 +279,9 @@ void ompl_interface::ModelBasedPlanningContext::useConfig()
     objective.reset(new ompl::base::MaximizeMinClearanceObjective(ompl_simple_setup_->getSpaceInformation()));
   }
   else if (optimizer == "HumanAwareObjective"){
+
+    auto list = getPlanningScene()->getHumanList();
+    logInform("GOT LIST: %d YEAHHHH",(int)list.size());
     //get a list of human, create a dummy list for now
     //create a human object
     std::shared_ptr<std::vector<oh::Human>> human_list_ptr(new std::vector<oh::Human>());
@@ -336,7 +340,15 @@ void ompl_interface::ModelBasedPlanningContext::setPlanningVolume(const moveit_m
 void ompl_interface::ModelBasedPlanningContext::simplifySolution(double timeout)
 {
   logInform("simplify solution");
-  ompl_simple_setup_->simplifySolution(timeout);
+  //instead using their simplifier, we will use ours instead.
+  //ompl_simple_setup_->simplifySolution(timeout);
+  const ompl::base::SpaceInformationPtr &si = ompl_simple_setup_->getSpaceInformation();
+  const ompl::base::OptimizationObjectivePtr &ooptr = ompl_simple_setup_->getOptimizationObjective();
+  //TODO, save one copy so we don't need to restart this everytime
+  ompl_human::PathSimplifierWithCost p_sim_cost(si, ooptr); //create the simplifier,
+  auto sol_path = ompl_simple_setup_->getSolutionPath();
+  p_sim_cost.simplify(sol_path);
+
   last_simplify_time_ = ompl_simple_setup_->getLastSimplificationTime();
 }
 
@@ -529,7 +541,7 @@ bool ompl_interface::ModelBasedPlanningContext::solve(planning_interface::Motion
   if (solve(request_.allowed_planning_time, request_.num_planning_attempts))
   {
     double ptime = getLastPlanTime();
-    if (simplify_solutions_ && ptime < request_.allowed_planning_time)
+    if (simplify_solutions_) //&& ptime < request_.allowed_planning_time)
     {
       simplifySolution(request_.allowed_planning_time - ptime);
       ptime += getLastSimplifyTime();

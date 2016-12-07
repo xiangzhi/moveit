@@ -50,6 +50,7 @@
 #include <boost/thread/mutex.hpp>
 #include <memory>
 
+
 namespace ompl_interface
 {
 namespace ob = ompl::base;

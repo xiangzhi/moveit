@@ -57,6 +57,10 @@
 #include <boost/function.hpp>
 #include <boost/concept_check.hpp>
 
+
+#include <moveit_msgs/Human.h> //Zhi's addition
+#include <vector>
+
 /** \brief This namespace includes the central class for representing planning contexts */
 namespace planning_scene
 {
@@ -1010,6 +1014,15 @@ private:
 
   // a map of object types
   boost::scoped_ptr<ObjectTypeMap> object_types_;
+
+
+  //a list of humans
+  std::vector<moveit_msgs::Human> human_list_;
+
+public:
+  std::vector<moveit_msgs::Human> getHumanList() const;
+  bool processHumanObj(const moveit_msgs::Human &obj);
+
 };
 }
 

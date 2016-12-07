@@ -112,6 +112,9 @@ const std::string planning_scene_monitor::PlanningSceneMonitor::DEFAULT_PLANNING
 const std::string planning_scene_monitor::PlanningSceneMonitor::MONITORED_PLANNING_SCENE_TOPIC = "monitored_planning_"
                                                                                                  "scene";
 
+const std::string planning_scene_monitor::PlanningSceneMonitor::DEFAULT_HUMAN_OBJECT_TOPIC = "human_object";
+
+
 planning_scene_monitor::PlanningSceneMonitor::PlanningSceneMonitor(const std::string &robot_description,
                                                                    const boost::shared_ptr<tf::Transformer> &tf,
                                                                    const std::string &name)
@@ -605,6 +608,20 @@ void planning_scene_monitor::PlanningSceneMonitor::collisionObjectFailTFCallback
     collisionObjectCallback(obj);
 }
 
+void planning_scene_monitor::PlanningSceneMonitor::humanCallback(const moveit_msgs::HumanConstPtr &obj){
+  if(scene_){
+    updateFrameTransforms(); //not sure what this do
+    {
+      boost::unique_lock<boost::shared_mutex> ulock(scene_update_mutex_); //update lock
+      last_update_time_ = ros::Time::now();
+      scene_->processHumanObj(*obj);
+    }
+    triggerSceneUpdateEvent(UPDATE_GEOMETRY); // not sure what this do
+  }
+}
+
+
+
 void planning_scene_monitor::PlanningSceneMonitor::collisionObjectCallback(
     const moveit_msgs::CollisionObjectConstPtr &obj)
 {
@@ -953,6 +970,29 @@ bool planning_scene_monitor::PlanningSceneMonitor::getShapeTransformCache(
   }
   return true;
 }
+
+
+void planning_scene_monitor::PlanningSceneMonitor::startHumanMonitor(
+  const std::string &human_object_topic_name){
+  //if valid
+  if(!human_object_topic_name.empty()){
+    //restart subscriber
+    human_object_subscriber_ = 
+      root_nh_.subscribe(human_object_topic_name, 1024, &PlanningSceneMonitor::humanCallback, this);
+  }
+  ROS_INFO_NAMED(LOGNAME, "Listening to '%s'", root_nh_.resolveName(human_object_topic_name).c_str());
+}
+
+void planning_scene_monitor::PlanningSceneMonitor::stopHumanMonitor()
+{
+  if (human_object_subscriber_)
+  {
+    ROS_INFO_NAMED(LOGNAME, "Stopping human monitor");
+    human_object_subscriber_.shutdown();
+  }  
+}
+
+
 
 void planning_scene_monitor::PlanningSceneMonitor::startWorldGeometryMonitor(
     const std::string &collision_objects_topic, const std::string &planning_scene_world_topic,

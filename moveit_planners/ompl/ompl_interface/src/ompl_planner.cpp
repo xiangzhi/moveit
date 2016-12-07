@@ -137,6 +137,10 @@ int main(int argc, char **argv)
     psm.startWorldGeometryMonitor();
     psm.startSceneMonitor();
     psm.startStateMonitor();
+    //zhi addition
+    ROS_INFO("HELLO ZHI");
+    psm.startHumanMonitor();
+
 
     OMPLPlannerService pservice(psm, debug);
     pservice.status();

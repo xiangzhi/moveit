@@ -196,6 +196,7 @@ int main(int argc, char** argv)
     planning_scene_monitor->startSceneMonitor();
     planning_scene_monitor->startWorldGeometryMonitor();
     planning_scene_monitor->startStateMonitor();
+    planning_scene_monitor->startHumanMonitor();
     printf(MOVEIT_CONSOLE_COLOR_CYAN "Context monitors started.\n" MOVEIT_CONSOLE_COLOR_RESET);
 
     move_group::MoveGroupExe mge(planning_scene_monitor, debug);

@@ -103,6 +103,9 @@ public:
   /// name, so the topic is prefixed by the node name)
   static const std::string MONITORED_PLANNING_SCENE_TOPIC;  // "monitored_planning_scene"
 
+
+  static const std::string DEFAULT_HUMAN_OBJECT_TOPIC; //adding a human topic :P
+
   /** @brief Constructor
    *  @param robot_description The name of the ROS parameter that contains the URDF (in string format)
    *  @param tf A pointer to a tf::Transformer
@@ -368,7 +371,25 @@ public:
   // Called to update the planning scene with a new message.
   bool newPlanningSceneMessage(const moveit_msgs::PlanningScene &scene);
 
+
+  /** @brief Callback for starting monitoring humans*/
+  void startHumanMonitor(const std::string &human_object_topic = DEFAULT_HUMAN_OBJECT_TOPIC);
+  void stopHumanMonitor();
+
 protected:
+
+
+
+  /** @brief Callback for a new human object msg*/
+  void humanCallback(const moveit_msgs::HumanConstPtr &obj);
+
+
+
+
+
+
+
+
   /** @brief Initialize the planning scene monitor
    *  @param scene The scene instance to fill with data (an instance is allocated if the one passed in is not allocated)
    */
@@ -458,6 +479,8 @@ protected:
   ros::Subscriber planning_scene_world_subscriber_;
 
   ros::Subscriber attached_collision_object_subscriber_;
+
+  ros::Subscriber human_object_subscriber_;
 
   boost::scoped_ptr<message_filters::Subscriber<moveit_msgs::CollisionObject> > collision_object_subscriber_;
   boost::scoped_ptr<tf::MessageFilter<moveit_msgs::CollisionObject> > collision_object_filter_;

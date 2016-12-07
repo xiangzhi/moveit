@@ -2237,3 +2237,29 @@ void planning_scene::PlanningScene::printKnownObjects(std::ostream &out) const
     out << "\t " << attached_bodies[i]->getName() << "\n";
   }
 }
+
+std::vector<moveit_msgs::Human> planning_scene::PlanningScene::getHumanList() const{
+  return human_list_;
+}
+
+bool planning_scene::PlanningScene::processHumanObj(const moveit_msgs::Human &obj){
+  //first check what type of action it is
+  if(obj.operation == moveit_msgs::Human::ADD){
+    //add the object
+    human_list_.push_back(obj);
+    return true;
+  }
+  else{
+    for(int i = 0; i < human_list_.size(); i++){
+      if(human_list_[i].id == obj.id && obj.operation == moveit_msgs::Human::MOVE){
+        human_list_[i] = obj;//update
+        return true;
+      }
+      if(human_list_[i].id == obj.id && obj.operation == moveit_msgs::Human::REMOVE){
+        human_list_.erase(human_list_.begin()+i);//remove
+        return true;
+      }
+    }
+  }
+  return false;
+}
